@@ -3,6 +3,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { Alert, Button, Container } from 'react-bootstrap'
 import web3 from 'ethereum/web3';
+import Head from 'next/head';
 
 export default function Layout({ children }: any) {
   const [showChangeNetwork, setShowChangeNetwork] = useState(false);
@@ -37,6 +38,11 @@ export default function Layout({ children }: any) {
     </div>
   }
   return <>
+    <Head>
+      <title>Welcome To Mystery!</title>
+      <meta name="description" content="Solve Mystery and win ETH!" />
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
     <Header />
     <Container className="pt-4 pb-2">
       {
