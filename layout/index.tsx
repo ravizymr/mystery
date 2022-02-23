@@ -33,7 +33,7 @@ export default function Layout({ children }: any) {
 
   const renderButton = () => {
     return <div className='text-center'>
-      <Alert>You're not Connected to Ropsten Test Network!</Alert>
+      <Alert>You{"'"}re not Connected to Ropsten Test Network!</Alert>
       <Button onClick={connectToNetwork} disabled={switching}>Connect To Ropsten Test Network</Button>
     </div>
   }
