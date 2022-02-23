@@ -26,7 +26,7 @@ const Footer = () => {
         <div>
           {network && <a
             target="_blank"
-            href={`https://${network}.etherscan.io/address/${factory.options.address}`}
+            href={`https://${network}.etherscan.io/address/${factory.options.address}`} rel="noreferrer"
           >
             View Contract
           </a>}

@@ -23,6 +23,32 @@ const AccountPage = () => {
   const limit = Number(router.query.limit || 10);
   const offset = Number(router.query.offset || 0);
 
+
+  useEffect(() => {
+    const getAccount = async () => {
+      const [account] = await web3.eth.getAccounts();
+      setAccount(account);
+      if (account) {
+        setLoading(true)
+        try {
+          const data: IMysteryPage = await factory.methods.getMyMystery(offset, limit).call({
+            from: account,
+          });
+          setUserMystery({
+            mystery: data.mystery,
+            nextOffset: data.nextOffset,
+            total: data.total
+          });
+        } catch (e) {
+          console.log(e);
+        } finally {
+          setLoading(false)
+        }
+      }
+    };
+    getAccount();
+  }, [limit, offset]);
+
   const handlePageChange = ({ selected }) => {
     console.log(selected);
     const offset = selected * limit;
@@ -34,32 +60,6 @@ const AccountPage = () => {
       pathname: router.pathname, query
     })
   }
-
-  const getAccount = async () => {
-    const [account] = await web3.eth.getAccounts();
-    setAccount(account);
-    if (account) {
-      setLoading(true)
-      try {
-        const data: IMysteryPage = await factory.methods.getMyMystery(offset, limit).call({
-          from: account,
-        });
-        setUserMystery({
-          mystery: data.mystery,
-          nextOffset: data.nextOffset,
-          total: data.total
-        });
-      } catch (e) {
-        console.log(e);
-      } finally {
-        setLoading(false)
-      }
-    }
-  };
-
-  useEffect(() => {
-    getAccount();
-  }, []);
 
   const getContent = () => {
     if (account) {
@@ -101,7 +101,7 @@ const AccountPage = () => {
       );
     }
     return account && !loading && <Alert className="text-center" variant={"info"}>
-      You Don't Have any Mystery.
+      You Don{"'"}t Have any Mystery.
     </Alert>;
   };
   return (

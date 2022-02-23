@@ -23,7 +23,7 @@ export default function Layout({ children }: any) {
         // 0x3 - Ropsten always exist in metamask
         params: [{ chainId: '0x3' }],
       });
-    } catch (error) {
+    } catch (error: any) {
       console.log(error.message || 'failed to switch network');
     } finally {
       setSwitching(false)

@@ -17,11 +17,6 @@ import Error from "next/error";
 const initAddr = "0x0000000000000000000000000000000000000000";
 
 const MysteryPage: NextPage = ({ detail, query, error }: any) => {
-  if (error) {
-    return <Error style={{
-      height: 'auto'
-    }} statusCode={error.statusCode} title={error.message} />
-  }
   const [ans, setAns] = useState("");
   const [from, setFrom] = useState(null);
   const [mysteryData, setMysteryData] = useState<{
@@ -33,23 +28,30 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
     manager: string;
     winner: string;
   }>(detail);
-
   const [trying, setTrying] = useState(false);
   const [network, setNetwork] = useState<string>();
+
+  if (error) {
+    return <Error style={{
+      height: 'auto'
+    }} statusCode={error.statusCode} title={error.message} />
+  }
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    getAccount();
+    getNetwork();
+  }, []);
+
 
   const getNetwork = async () => {
     const network = await web3.eth.net.getNetworkType();
     setNetwork(network);
   };
-
-  useEffect(() => {
-    const getAccount = async () => {
-      const [from] = await web3.eth.getAccounts();
-      setFrom(from);
-    };
-    getAccount();
-    getNetwork();
-  }, []);
+  const getAccount = async () => {
+    const [from] = await web3.eth.getAccounts();
+    setFrom(from);
+  };
 
   const tryMystery = async (e) => {
     e.preventDefault();
@@ -139,7 +141,7 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
               <b>Winner:</b>
               <a
                 target="_blank"
-                href={`https://${network}.etherscan.io/address/${mysteryData.winner}`}
+                href={`https://${network}.etherscan.io/address/${mysteryData.winner}`} rel="noreferrer"
               >{web3.utils.toChecksumAddress(mysteryData.winner)}
               </a>
             </Card.Footer>
@@ -150,7 +152,7 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
               {
                 <a
                   target="_blank"
-                  href={`https://${network}.etherscan.io/address/${query.address}`}
+                  href={`https://${network}.etherscan.io/address/${query.address}`} rel="noreferrer"
                 >
                   {query.address}
                 </a>

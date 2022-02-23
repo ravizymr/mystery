@@ -10,18 +10,18 @@ const MysteryCard = ({ address, as }: { address: string, as: any }) => {
   const [data, setData] = useState<any>(null);
   const [solved, setSolved] = useState(false)
   useEffect(() => {
+    const getDetail = async () => {
+      const detail = await factory.methods.geyMysteryDetail(address).call();
+      setData({ ...detail });
+      setSolved(!String(detail.winner).endsWith('0000000000000000'))
+    }
     web3.eth.getChainId().then((chainId) => {
       if (chainId == 3) {
         getDetail();
       }
     });
-  }, [])
+  }, [address])
 
-  const getDetail = async () => {
-    const detail = await factory.methods.geyMysteryDetail(address).call();
-    setData({ ...detail });
-    setSolved(!String(detail.winner).endsWith('0000000000000000'))
-  }
 
   if (!data) {
     return <div className='text-center'><Spinner animation='grow' /></div>
