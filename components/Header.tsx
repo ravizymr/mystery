@@ -34,9 +34,9 @@ const Header = () => {
       <Container fluid>
         <Link href="/">Mystery</Link>
         <Nav>
-          <Link href={"/new"}>
+          {account && <Link href={"/new"}>
             <a>Create Mystery</a>
-          </Link>
+          </Link>}
           {account && (
             <Link href={"/account"}>
               <a className={styles.account}>
