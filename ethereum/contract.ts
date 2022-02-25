@@ -4,7 +4,7 @@ import Mystery from "./build/Mystery.json";
 
 const factory = new web3.eth.Contract(
   (MysteryFactory.abi as any),
-  '0x573018D91A1884464C4509ec9969414091990c26' // with pagination and create,solved event
+  process.env.NEXT_PUBLIC_MYSTERY_FACTORY // with pagination and create, solved event
   // '0x8D6426Bb165e8EF516c58D4C1c6eB7023D9cFedc' - correct cont
   // '0x0013AE6e5Ad93e239283afF7FdB6658b072646D9' - without pagination
 );
