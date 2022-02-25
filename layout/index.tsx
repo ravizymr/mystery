@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Alert, Button, Container, Toast, ToastContainer } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Container,
+  Toast,
+  ToastContainer,
+} from "react-bootstrap";
 import web3 from "ethereum/web3";
 import Head from "next/head";
 import { factory } from "ethereum/contract";
@@ -11,7 +17,8 @@ export default function Layout({ children }: any) {
   const [showChangeNetwork, setShowChangeNetwork] = useState(false);
   const [switching, setSwitching] = useState(false);
   const [showWeb3Warn, setShowWeb3Warn] = useState(false);
-  const [newMysteryToast, setNewMysteryToast] = useState<null | object>(null);
+  const [newMysteryToast, setNewMysteryToast] = useState<any>(null);
+  const [mysterySolvedToast, setMysterySolvedToast] = useState<any>(null);
   const getChain = async () => {
     const chainId = await web3.eth.getChainId();
     setShowChangeNetwork(chainId != 3);
@@ -28,11 +35,16 @@ export default function Layout({ children }: any) {
           if (event) {
             setNewMysteryToast(event.returnValues);
           }
-        })
-      }
+        });
+        factory.events.MysterySolved({}, (error, event) => {
+          if (event) {
+            setMysterySolvedToast(event.returnValues);
+          }
+        });
+      };
       subscribeToEvents();
     }
-  }, [showChangeNetwork])
+  }, [showChangeNetwork]);
 
   const isWeb3Enalbed = async () => {
     if (window && !(window as any).ethereum) {
@@ -74,12 +86,53 @@ export default function Layout({ children }: any) {
       </Head>
       <Header />
       <ToastContainer className="mb-4 mx-4" position="bottom-start">
-        <Toast onClose={() => setNewMysteryToast(null)} show={!!newMysteryToast} bg="info" autohide delay={4000}>
+        {/* mystery solved toast */}
+        <Toast
+          onClose={() => setMysterySolvedToast(null)}
+          show={!!mysterySolvedToast}
+          bg="info"
+          autohide
+          delay={4000}
+        >
+          <Toast.Header>
+            <strong className="me-auto">Mystery</strong>
+          </Toast.Header>
+          {mysterySolvedToast && (
+            <Toast.Body className="text-black">
+              Woohoo,{" "}
+              <Link
+                href={`/mystery/${mysterySolvedToast.mystery}`}
+              >
+                Mystery
+              </Link>{" "}
+              Solved with
+              {web3.utils.fromWei(
+                String(mysterySolvedToast.winAmount),
+                "ether"
+              )}{" "}
+              ETH after {mysterySolvedToast.triedCount} Try!
+            </Toast.Body>
+          )}
+        </Toast>
+        {/* new mystert created toast */}
+        <Toast
+          onClose={() => setNewMysteryToast(null)}
+          show={!!newMysteryToast}
+          bg="info"
+          autohide
+          delay={4000}
+        >
           <Toast.Header>
             <strong className="me-auto">Mystery</strong>
           </Toast.Header>
           <Toast.Body className="text-black">
-            Woohoo, New <Link href={`/mystery/${newMysteryToast ? newMysteryToast[0] : ''}`}>Mystery</Link> Created!
+            Woohoo, New{" "}
+            <Link
+              href={`/mystery/${newMysteryToast ? newMysteryToast[0] : ""}`}
+            >
+              Mystery
+            </Link>{" "}
+            Created!
           </Toast.Body>
         </Toast>
       </ToastContainer>

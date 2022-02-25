@@ -46,6 +46,14 @@ describe('Deploy Factory and Mystrey', () => {
       .deploy({ data: compiledFactory.bytecode, arguments: [] })
       .send({ from: accounts[0], gas: '5000000' });
 
+    let eventData;
+
+    factory.events.MysteryCreated({}, (error, event) => {
+      if (event) {
+        eventData = event.returnValues;
+      }
+    });
+
     await factory.methods.createMystery("test", "test", 50, minimumContribution)
       .send({
         from: accounts[0],
@@ -58,6 +66,9 @@ describe('Deploy Factory and Mystrey', () => {
       data.mystery[0].mystery
     );
     assert.equal(mystery.options.address, data.mystery[0].mystery);
+    assert.equal(eventData.manager, accounts[0]);
+    assert.equal(eventData.mystery, mystery.options.address);
+    assert.equal(eventData.desc, "test");
   })
 })
 
@@ -139,7 +150,13 @@ describe("Mystery Factory Operation", () => {
   });
 
   it("user try to solve mystery with guess, pass at 2nd try", async () => {
+    let eventData;
     try {
+      factory.events.MysterySolved({}, (error, event) => {
+        if (event) {
+          eventData = event.returnValues;
+        }
+      });
       await mystery.methods.tryMystery("check")
         .send({
           from: accounts[2],
@@ -162,6 +179,10 @@ describe("Mystery Factory Operation", () => {
     assert.equal(data['winner'], accounts[2])
     const solved = await mystery.methods.getAnswer().call();
     assert.equal(solved, "test")
+    assert.equal(eventData.winner, accounts[2])
+    assert.equal(eventData.mystery, mystery.options.address);
+    assert(eventData.winAmount)
+    assert.equal(eventData.triedCount, 2)
   });
 
   it('getAnswer method call before solve', async () => {

@@ -122,7 +122,7 @@ contract MysteryFactory {
         owner = msg.sender;
     }
 
-    event MysteryCreated(address manager, string desc);
+    event MysteryCreated(address mystery, address manager, string desc);
     event MysterySolved(
         address winner,
         address mystery,
@@ -151,7 +151,7 @@ contract MysteryFactory {
         );
         payable(newMystery).transfer(address(this).balance);
         deployedMystery.push(payable(newMystery));
-        emit MysteryCreated(address(newMystery), mysteryQuestion);
+        emit MysteryCreated(address(newMystery), msg.sender, mysteryQuestion);
         _mysteryByUser[msg.sender].push(payable(newMystery));
         _isMysterySolved[address(newMystery)] = false;
     }
