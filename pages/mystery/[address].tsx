@@ -82,7 +82,7 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
       <Col>
         <Card className="mt-2">
           <Card.Header>
-            <Card.Title className="mb-0 text-break">{mysteryData.desc}</Card.Title>
+            <Card.Title className="mb-0 space-break">{mysteryData.desc}</Card.Title>
             {solved && <Card.Text className="mb-0"><small>Answer: </small>fff</Card.Text>}
           </Card.Header>
           <Card.Body>
