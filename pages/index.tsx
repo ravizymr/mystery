@@ -78,7 +78,7 @@ Home.getInitialProps = async ({ query }) => {
     return {
       mysterys: {
         total: data.total,
-        mystery: data.mystery,
+        mystery: data.mystery.map(m => ({ ...m })),
         nextOffset: data.nextOffset // data.nextOffset,
       },
       query,

@@ -105,7 +105,12 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
           </Card.Body>
           <Card.Footer>
             <b>Riddler:</b>{" "}
-            {mysteryData.manager == from ? "You" : mysteryData.manager}
+            <a
+              target="_blank"
+              href={`https://${network}.etherscan.io/address/${mysteryData.manager}`} rel="noreferrer"
+            >
+              {mysteryData.manager == from ? "You" : mysteryData.manager}
+            </a>
           </Card.Footer>
           {from !== mysteryData.manager && !solved && (
             <Card.Footer>
@@ -132,7 +137,7 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
           )}
           {solved && (
             <Card.Footer>
-              <b>Winner:</b>
+              <b>Winner: </b>
               <a
                 target="_blank"
                 href={`https://${network}.etherscan.io/address/${mysteryData.winner}`} rel="noreferrer"
@@ -142,15 +147,12 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
           )}
           {
             <Card.Footer>
-              <b>Contract:</b>{" "}
-              {
-                <a
-                  target="_blank"
-                  href={`https://${network}.etherscan.io/address/${query.address}`} rel="noreferrer"
-                >
-                  {query.address}
-                </a>
-              }
+              <a
+                target="_blank"
+                href={`https://${network}.etherscan.io/address/${query.address}`} rel="noreferrer"
+              >
+                View Contract on etherscan
+              </a>
             </Card.Footer>
           }
         </Card>
