@@ -1,5 +1,15 @@
+interface ImysteryData {
+  mystery: string
+  min: string
+  totalBalance: string
+  desc: string
+  triedCount: string
+  manager: string
+  winner: string
+  winAmount: string
+}
 interface IMysteryPage {
-  mystery: string[]
+  mystery: ImysteryData[]
   total: number
   nextOffset: number
 }
@@ -10,6 +20,7 @@ interface IMysteryQuery {
 }
 
 export {
+  type ImysteryData,
   type IMysteryPage,
-  type IMysteryQuery
+  type IMysteryQuery,
 }

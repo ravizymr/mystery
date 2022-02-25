@@ -2,7 +2,7 @@ import { factory } from "../ethereum/contract";
 import MysteryCard from "components/MysteryCard";
 import { useEffect, useState } from "react";
 import web3 from "ethereum/web3";
-import { Alert, ListGroup } from "react-bootstrap";
+import { Alert, ListGroup, Spinner } from "react-bootstrap";
 import { IMysteryPage } from "types";
 import { useRouter } from "next/router";
 import ReactPaginate from "react-paginate";
@@ -20,7 +20,7 @@ const AccountPage = () => {
 
   const limit = Number(router.query.limit || 10);
   const offset = Number(router.query.offset || 0);
-
+  const currentPage = offset / limit
 
   useEffect(() => {
     const getAccount = async () => {
@@ -34,8 +34,8 @@ const AccountPage = () => {
           });
           setUserMystery({
             mystery: data.mystery,
-            nextOffset: data.nextOffset,
-            total: data.total
+            nextOffset: Number(data.nextOffset),
+            total: Number(data.total)
           });
         } catch (e) {
           console.log(e);
@@ -48,8 +48,6 @@ const AccountPage = () => {
   }, [limit, offset]);
 
   const handlePageChange = ({ selected }) => {
-    console.log(selected);
-    const offset = selected * limit;
     let query = {};
     if (selected) {
       (query as any).offset = selected * limit
@@ -71,14 +69,17 @@ const AccountPage = () => {
   };
 
   const renderMystery = () => {
-    if (userMystery.total > 0) {
+    if (loading) {
+      return <div className='text-center'><Spinner animation='grow' /></div>
+    }
+    if (userMystery && userMystery.total > 0) {
       return (<>
         <ListGroup>
           {userMystery.mystery.map((mystery) => (
-            <MysteryCard key={mystery} address={mystery} as={ListGroup.Item} />
+            <MysteryCard key={mystery.mystery} mystery={mystery} as={ListGroup.Item} />
           ))}
         </ListGroup>
-        <ReactPaginate
+        {userMystery.total > 10 && <ReactPaginate
           breakLabel="..."
           marginPagesDisplayed={2}
           pageRangeDisplayed={2}
@@ -92,9 +93,10 @@ const AccountPage = () => {
           breakLinkClassName="page-link"
           containerClassName="pagination justify-content-center mt-2"
           activeClassName="active"
+          initialPage={currentPage}
           pageCount={Math.ceil(userMystery.total / limit)}
           onPageChange={handlePageChange}
-        />
+        />}
       </>
       );
     }

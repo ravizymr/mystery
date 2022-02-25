@@ -6,37 +6,85 @@ const web3 = new Web3(ganache.provider());
 const compiledFactory = require("../build/MysteryFactory.json");
 const compiledMystery = require("../build/Mystery.json")
 
-let accounts;
-let factory;
-let mystery;
-
 const minimumContribution = web3.utils.toWei('1'.toString(), 'ether');
 const getBalanceInEther = async (account) => {
   return Number(web3.utils.fromWei(await web3.eth.getBalance(account), 'ether'));
 }
 
+let accounts;
 beforeEach(async () => {
   accounts = await web3.eth.getAccounts();
+})
 
-  factory = await new web3.eth.Contract(compiledFactory.abi)
-    .deploy({ data: compiledFactory.bytecode, arguments: [] })
-    .send({ from: accounts[0], gas: '5000000' });
+describe('Deploy Factory and Mystrey', () => {
+  it('deploy factory', async () => {
+    const factory = await new web3.eth.Contract(compiledFactory.abi)
+      .deploy({ data: compiledFactory.bytecode, arguments: [] })
+      .send({ from: accounts[0], gas: '5000000' });
+    assert.ok(factory.options.address)
+  })
 
-  await factory.methods.createMystery("test", "test", 50, minimumContribution)
-    .send({
-      from: accounts[0],
-      value: minimumContribution,
-      gas: "2000000"
-    });
+  it('deploy mystery', async () => {
+    const factory = await new web3.eth.Contract(compiledFactory.abi)
+      .deploy({ data: compiledFactory.bytecode, arguments: [] })
+      .send({ from: accounts[0], gas: '5000000' });
 
-  const data = await factory.methods.getDeployedMystery(0, 0).call();
-  mystery = await new web3.eth.Contract(
-    compiledMystery.abi,
-    data.mystery[0]
-  );
-});
+    await factory.methods.createMystery("test", "test", 50, minimumContribution)
+      .send({
+        from: accounts[0],
+        value: minimumContribution,
+        gas: "2000000"
+      });
 
-describe("Mystery Factory", () => {
+    const data = await factory.methods.getDeployedMystery(0, 0).call();
+    assert.equal(data.mystery.length, 1)
+    assert.equal(data.total, 1)
+  })
+
+  it('get address of deployed mystery', async () => {
+    const factory = await new web3.eth.Contract(compiledFactory.abi)
+      .deploy({ data: compiledFactory.bytecode, arguments: [] })
+      .send({ from: accounts[0], gas: '5000000' });
+
+    await factory.methods.createMystery("test", "test", 50, minimumContribution)
+      .send({
+        from: accounts[0],
+        value: minimumContribution,
+        gas: "2000000"
+      });
+    const data = await factory.methods.getDeployedMystery(0, 0).call();
+    const mystery = await new web3.eth.Contract(
+      compiledMystery.abi,
+      data.mystery[0].mystery
+    );
+    assert.equal(mystery.options.address, data.mystery[0].mystery);
+  })
+})
+
+
+describe("Mystery Factory Operation", () => {
+  let factory;
+  let mystery;
+
+  beforeEach(async () => {
+    factory = await new web3.eth.Contract(compiledFactory.abi)
+      .deploy({ data: compiledFactory.bytecode, arguments: [] })
+      .send({ from: accounts[0], gas: '5000000' });
+
+    await factory.methods.createMystery("test", "test", 50, minimumContribution)
+      .send({
+        from: accounts[0],
+        value: minimumContribution,
+        gas: "2000000"
+      });
+
+    const data = await factory.methods.getDeployedMystery(0, 0).call();
+    mystery = await new web3.eth.Contract(
+      compiledMystery.abi,
+      data.mystery[0].mystery
+    );
+  });
+
   it("deploys a factory and a mystery", async () => {
     assert.ok(factory.options.address);
     assert.ok(mystery.options.address);

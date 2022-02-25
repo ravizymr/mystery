@@ -17,7 +17,7 @@ const initAddr = "0x0000000000000000000000000000000000000000";
 
 const MysteryPage: NextPage = ({ detail, query, error }: any) => {
   const [ans, setAns] = useState("");
-  const [from, setFrom] = useState(null);
+  const [from, setFrom] = useState("");
   const [mysteryData, setMysteryData] = useState<{
     totalBalance: number;
     desc: string;
@@ -82,7 +82,7 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
       <Col>
         <Card className="mt-2">
           <Card.Header>
-            <Card.Title className="mb-0">{mysteryData.desc}</Card.Title>
+            <Card.Title className="mb-0 text-break">{mysteryData.desc}</Card.Title>
             {solved && <Card.Text className="mb-0"><small>Answer: </small>fff</Card.Text>}
           </Card.Header>
           <Card.Body>
@@ -161,13 +161,12 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
 
 MysteryPage.getInitialProps = async ({ query }) => {
   try {
-    web3.utils.toChecksumAddress(query.address)
+    const address = query.address || "";
+    web3.utils.toChecksumAddress(address as string)
     const currentMystery = mystery(query.address);
     const detail = await currentMystery.methods.getSummary().call();
     return { detail: { ...detail }, query };
   } catch (e) {
-    console.log(e);
-
     return {
       error: { statusCode: 404, message: 'Mystery not Found!' },
       query

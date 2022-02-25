@@ -1,8 +1,8 @@
 import type { NextPage } from "next";
-import { Alert, ListGroup, Pagination } from "react-bootstrap";
+import { Alert, ListGroup } from "react-bootstrap";
 import { factory } from "../ethereum/contract";
 import MysteryCard from "components/MysteryCard";
-import { IMysteryPage, IMysteryQuery } from "types";
+import { IMysteryPage } from "types";
 import { useRouter } from "next/router";
 import ReactPaginate from "react-paginate";
 
@@ -12,13 +12,13 @@ const Home: NextPage<{
   const router = useRouter();
 
   const limit = Number(router.query.limit || 10);
+  const offset = Number(router.query.offset || 0);
   const total = Number(mysterys.total);
 
   const totalPage = Math.ceil(total / limit);
+  const currentPage = offset / limit;
 
   const handlePageChange = ({ selected }) => {
-    console.log(selected);
-    const offset = selected * limit;
     let query = {};
     if (selected) {
       (query as any).offset = selected * limit
@@ -36,14 +36,15 @@ const Home: NextPage<{
           <ListGroup>
             {mysterys.mystery.map((mystery) => (
               <MysteryCard
-                key={mystery}
-                address={mystery}
+                key={mystery.mystery}
+                mystery={mystery}
                 as={ListGroup.Item}
               />
             ))}
           </ListGroup>
-          <ReactPaginate
+          {totalPage > 1 && <ReactPaginate
             breakLabel="..."
+            initialPage={currentPage}
             marginPagesDisplayed={2}
             pageRangeDisplayed={2}
             pageClassName="page-item"
@@ -58,7 +59,7 @@ const Home: NextPage<{
             activeClassName="active"
             pageCount={totalPage}
             onPageChange={handlePageChange}
-          />
+          />}
         </>
       ) : (
         <Alert className="text-center" variant="info">

@@ -11,7 +11,7 @@ const Home: NextPage = () => {
   const [desc, setDesc] = useState("");
   const [ans, setAns] = useState("");
   const [winProfit, setWinProfit] = useState("50");
-  const [minAmountToAnswer, setMinAmountToAnswer] = useState("1");
+  const [minAmountToAnswer, setMinAmountToAnswer] = useState("0.001");
   const [loading, setLoading] = useState(false);
 
   const createMystery = async (e: any) => {

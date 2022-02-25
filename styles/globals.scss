@@ -7,7 +7,8 @@ a {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  & > div {
+  position: relative;
+  & > div.container {
     flex: 1 0 auto;
     & > div {
       height: auto !important;

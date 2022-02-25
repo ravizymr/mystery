@@ -11,6 +11,7 @@ struct mysteryData {
     uint256 triedCount;
     address manager;
     address winner;
+    address mystery;
 }
 
 contract Mystery {
@@ -59,8 +60,6 @@ contract Mystery {
         return address(this).balance;
     }
 
-    event MysteryWonBy(address, uint256, uint256, uint256);
-
     receive() external payable {}
 
     function tryMystery(string calldata guessedAnswer) public payable {
@@ -88,7 +87,6 @@ contract Mystery {
             payable(owner).transfer(a_own);
             winner = msg.sender;
             solved = true;
-            emit MysteryWonBy(winner, winAmount, a_man, totalAmount);
             MysteryFactory x = MysteryFactory(factoryAddress);
             x.mysterySolved(payable(this));
         }
@@ -108,22 +106,29 @@ contract Mystery {
                 winAmount,
                 triedCount,
                 manager,
-                winner
+                winner,
+                address(this)
             );
     }
 }
 
 contract MysteryFactory {
     address private owner;
-    mapping(address => address[]) _mysteryByUser;
-    address[] private deployedMystery;
+    mapping(address => address payable[]) _mysteryByUser;
+    address payable[] public deployedMystery;
     mapping(address => bool) public _isMysterySolved;
 
     constructor() {
         owner = msg.sender;
     }
 
-    event MysteryCreated(address, string);
+    event MysteryCreated(address manager, string desc);
+    event MysterySolved(
+        address winner,
+        address mystery,
+        uint256 winAmount,
+        uint256 triedCount
+    );
 
     function createMystery(
         string calldata mysteryQuestion,
@@ -145,13 +150,13 @@ contract MysteryFactory {
             address(this)
         );
         payable(newMystery).transfer(address(this).balance);
-        deployedMystery.push(address(newMystery));
+        deployedMystery.push(payable(newMystery));
         emit MysteryCreated(address(newMystery), mysteryQuestion);
-        _mysteryByUser[msg.sender].push(address(newMystery));
+        _mysteryByUser[msg.sender].push(payable(newMystery));
         _isMysterySolved[address(newMystery)] = false;
     }
 
-    function geyMysteryDetail(address payable mystery)
+    function getMysteryDetail(address payable mystery)
         public
         view
         returns (mysteryData memory)
@@ -163,55 +168,66 @@ contract MysteryFactory {
     function mysterySolved(address payable _mystery) external {
         Mystery x = Mystery(_mystery);
         _isMysterySolved[address(_mystery)] = x.solved();
+        if (x.solved()) {
+            emit MysterySolved(
+                x.winner(),
+                address(_mystery),
+                x.winAmount(),
+                x.triedCount()
+            );
+        }
+    }
+
+    function getWithPagination(
+        uint256 offset,
+        uint256 limit,
+        address payable[] memory mysteryArray
+    )
+        private
+        view
+        returns (
+            mysteryData[] memory mystery,
+            uint256 nextOffset,
+            uint256 total
+        )
+    {
+        uint256 totalMystery = mysteryArray.length;
+        if (limit == 0) {
+            limit = 10;
+        }
+        if (limit > totalMystery - offset) {
+            limit = totalMystery - offset;
+        }
+        mysteryData[] memory mystery_ = new mysteryData[](limit);
+        for (uint256 i = 0; i < limit; i++) {
+            mysteryData memory x = Mystery(mysteryArray[offset + i])
+                .getSummary();
+            mystery_[i] = x;
+        }
+        return (mystery_, offset + limit, totalMystery);
     }
 
     function getDeployedMystery(uint256 offset, uint256 limit)
         public
         view
         returns (
-            address[] memory mystery,
+            mysteryData[] memory mystery,
             uint256 nextOffset,
             uint256 total
         )
     {
-        uint256 totalMystery = deployedMystery.length;
-        if (limit == 0) {
-            limit = 10;
-        }
-
-        if (limit > totalMystery - offset) {
-            limit = totalMystery - offset;
-        }
-
-        address[] memory mystery_ = new address[](limit);
-        for (uint256 i = 0; i < limit; i++) {
-            mystery_[i] = deployedMystery[offset + i];
-        }
-        return (mystery_, offset + limit, totalMystery);
+        return getWithPagination(offset, limit, deployedMystery);
     }
 
     function getMyMystery(uint256 offset, uint256 limit)
         public
         view
         returns (
-            address[] memory mystery,
+            mysteryData[] memory mystery,
             uint256 nextOffset,
             uint256 total
         )
     {
-        uint256 totalMystery = _mysteryByUser[msg.sender].length;
-        if (limit == 0) {
-            limit = 10;
-        }
-
-        if (limit > totalMystery - offset) {
-            limit = totalMystery - offset;
-        }
-
-        address[] memory mystery_ = new address[](limit);
-        for (uint256 i = 0; i < limit; i++) {
-            mystery_[i] = _mysteryByUser[msg.sender][offset + i];
-        }
-        return (mystery_, offset + limit, totalMystery);
+        return getWithPagination(offset, limit, _mysteryByUser[msg.sender]);
     }
 }
