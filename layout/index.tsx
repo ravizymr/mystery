@@ -12,24 +12,19 @@ import web3 from "ethereum/web3";
 import Head from "next/head";
 import { factory } from "ethereum/contract";
 import Link from "next/link";
+import { useStateContext } from "context/state";
 
 export default function Layout({ children }: any) {
-  const [showChangeNetwork, setShowChangeNetwork] = useState(false);
+  const {
+    chainId,
+    web3Supported,
+  } = useStateContext();
   const [switching, setSwitching] = useState(false);
-  const [showWeb3Warn, setShowWeb3Warn] = useState(false);
   const [newMysteryToast, setNewMysteryToast] = useState<any>(null);
   const [mysterySolvedToast, setMysterySolvedToast] = useState<any>(null);
-  const getChain = async () => {
-    const chainId = await web3.eth.getChainId();
-    setShowChangeNetwork(chainId != 3);
-  };
-  useEffect(() => {
-    isWeb3Enalbed();
-    getChain();
-  }, []);
 
   useEffect(() => {
-    if (!showChangeNetwork) {
+    if (chainId === 3) {
       const subscribeToEvents = async () => {
         factory.events.MysteryCreated({}, (error, event) => {
           if (event) {
@@ -44,13 +39,7 @@ export default function Layout({ children }: any) {
       };
       subscribeToEvents();
     }
-  }, [showChangeNetwork]);
-
-  const isWeb3Enalbed = async () => {
-    if (window && !(window as any).ethereum) {
-      setShowWeb3Warn(true);
-    }
-  };
+  }, [chainId]);
 
   const connectToNetwork = async () => {
     try {
@@ -137,7 +126,7 @@ export default function Layout({ children }: any) {
         </Toast>
       </ToastContainer>
       <Container className="pt-4 pb-2">
-        {showWeb3Warn && (
+        {!web3Supported && (
           <Alert variant="danger" className="mb-2 text-center">
             <span>
               Install any Wallet to Continue like:{" "}
@@ -151,7 +140,7 @@ export default function Layout({ children }: any) {
             </span>
           </Alert>
         )}
-        {showChangeNetwork ? renderButton() : children}
+        {chainId !== 3 ? renderButton() : children}
       </Container>
       <Footer />
     </>

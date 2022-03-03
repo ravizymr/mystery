@@ -1,16 +1,16 @@
 import { factory } from "../ethereum/contract";
 import MysteryCard from "components/MysteryCard";
 import { useEffect, useState } from "react";
-import web3 from "ethereum/web3";
 import { Alert, ListGroup, Spinner } from "react-bootstrap";
 import { IMysteryPage } from "types";
 import { useRouter } from "next/router";
 import ReactPaginate from "react-paginate";
+import { useStateContext } from "context/state";
 
 const AccountPage = () => {
   const router = useRouter();
 
-  const [account, setAccount] = useState<string>();
+  const { account } = useStateContext();
   const [userMystery, setUserMystery] = useState<IMysteryPage>({
     total: 0,
     nextOffset: 0,
@@ -23,9 +23,7 @@ const AccountPage = () => {
   const currentPage = offset / limit
 
   useEffect(() => {
-    const getAccount = async () => {
-      const [account] = await web3.eth.getAccounts();
-      setAccount(account);
+    const getDetailLatest = async () => {
       if (account) {
         setLoading(true)
         try {
@@ -44,8 +42,8 @@ const AccountPage = () => {
         }
       }
     };
-    getAccount();
-  }, [limit, offset]);
+    getDetailLatest();
+  }, [limit, offset, account]);
 
   const handlePageChange = ({ selected }) => {
     let query = {};

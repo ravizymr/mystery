@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import { mystery } from "ethereum/contract";
 import web3 from "ethereum/web3";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Card,
@@ -12,6 +12,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 import Error from "next/error";
+import { useStateContext } from "context/state";
 
 const initAddr = "0x0000000000000000000000000000000000000000";
 
@@ -28,29 +29,13 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
     winner: string;
   }>(detail);
   const [trying, setTrying] = useState(false);
-  const [network, setNetwork] = useState<string>();
+  const { network, account = from } = useStateContext();
 
   if (error) {
     return <Error style={{
       height: 'auto'
     }} statusCode={error.statusCode} title={error.message} />
   }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    getAccount();
-    getNetwork();
-  }, []);
-
-
-  const getNetwork = async () => {
-    const network = await web3.eth.net.getNetworkType();
-    setNetwork(network);
-  };
-  const getAccount = async () => {
-    const [from] = await web3.eth.getAccounts();
-    setFrom(from);
-  };
 
   const tryMystery = async (e) => {
     e.preventDefault();
