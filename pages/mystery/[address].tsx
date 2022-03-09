@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import { mystery } from "ethereum/contract";
 import web3 from "ethereum/web3";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -18,7 +18,6 @@ const initAddr = "0x0000000000000000000000000000000000000000";
 
 const MysteryPage: NextPage = ({ detail, query, error }: any) => {
   const [ans, setAns] = useState("");
-  const [from, setFrom] = useState("");
   const [mysteryData, setMysteryData] = useState<{
     totalBalance: number;
     desc: string;
@@ -29,7 +28,18 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
     winner: string;
   }>(detail);
   const [trying, setTrying] = useState(false);
-  const { network, account = from } = useStateContext();
+  const { network, account: from } = useStateContext();
+
+  useEffect(() => {
+    const getAns = async () => {
+      const current = mystery(query.address);
+      const answer = await current.methods.getAnswer().call();
+      setAns(answer);
+    }
+    if (mysteryData.winner !== initAddr) {
+      getAns();
+    }
+  }, [mysteryData, query])
 
   if (error) {
     return <Error style={{
@@ -68,7 +78,7 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
         <Card className="mt-2">
           <Card.Header>
             <Card.Title className="mb-0 space-break">{mysteryData.desc}</Card.Title>
-            {solved && <Card.Text className="mb-0"><small>Answer: </small>fff</Card.Text>}
+            {solved && <Card.Text className="mb-0"><small>Answer: </small><b>{ans}</b></Card.Text>}
           </Card.Header>
           <Card.Body>
             <Card.Subtitle>

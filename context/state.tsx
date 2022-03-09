@@ -24,11 +24,10 @@ const StateWrapper = (props) => {
 
   useEffect(() => {
     if (typeof window !== "undefined" && typeof (window as any).ethereum !== "undefined") {
-      (window as any).ethereum &&
-        (window as any).ethereum.on("accountsChanged", function (accounts) {
-          // Time to reload your interface with accounts[0]!
-          window.location.reload();
-        });
+      (window as any).ethereum.on("accountsChanged", function (accounts) {
+        // Time to reload your interface with accounts[0]!
+        window.location.reload();
+      });
       (window as any).ethereum.on("chainChanged", function (accounts) {
         // Time to reload your interface with accounts[0]!
         window.location.reload();
@@ -48,9 +47,6 @@ const StateWrapper = (props) => {
     // get chainId
     const chainId = await web3.eth.getChainId();
     setChainId(chainId);
-
-    console.log(await web3.eth.getCoinbase());
-
 
     // get current network
     const network = await web3.eth.net.getNetworkType()
