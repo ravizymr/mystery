@@ -12,12 +12,12 @@ import {
   Spinner,
 } from "react-bootstrap";
 import Error from "next/error";
+import { useStateContext } from "context/state";
 
 const initAddr = "0x0000000000000000000000000000000000000000";
 
 const MysteryPage: NextPage = ({ detail, query, error }: any) => {
   const [ans, setAns] = useState("");
-  const [from, setFrom] = useState("");
   const [mysteryData, setMysteryData] = useState<{
     totalBalance: number;
     desc: string;
@@ -28,29 +28,24 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
     winner: string;
   }>(detail);
   const [trying, setTrying] = useState(false);
-  const [network, setNetwork] = useState<string>();
+  const { network, account: from } = useStateContext();
+
+  useEffect(() => {
+    const getAns = async () => {
+      const current = mystery(query.address);
+      const answer = await current.methods.getAnswer().call();
+      setAns(answer);
+    }
+    if (mysteryData.winner !== initAddr) {
+      getAns();
+    }
+  }, [mysteryData, query])
 
   if (error) {
     return <Error style={{
       height: 'auto'
     }} statusCode={error.statusCode} title={error.message} />
   }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    getAccount();
-    getNetwork();
-  }, []);
-
-
-  const getNetwork = async () => {
-    const network = await web3.eth.net.getNetworkType();
-    setNetwork(network);
-  };
-  const getAccount = async () => {
-    const [from] = await web3.eth.getAccounts();
-    setFrom(from);
-  };
 
   const tryMystery = async (e) => {
     e.preventDefault();
@@ -83,7 +78,7 @@ const MysteryPage: NextPage = ({ detail, query, error }: any) => {
         <Card className="mt-2">
           <Card.Header>
             <Card.Title className="mb-0 space-break">{mysteryData.desc}</Card.Title>
-            {solved && <Card.Text className="mb-0"><small>Answer: </small>fff</Card.Text>}
+            {solved && <Card.Text className="mb-0"><small>Answer: </small><b>{ans}</b></Card.Text>}
           </Card.Header>
           <Card.Body>
             <Card.Subtitle>

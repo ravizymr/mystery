@@ -4,7 +4,7 @@ let web3 : Web3;
 
 if (typeof window !== "undefined" && typeof (window as any).ethereum !== "undefined") {
   // We are in the browser and metamask is running.
-  (window as any).ethereum.request({ method: "eth_requestAccounts" });
+  // (window as any).ethereum.request({ method: "eth_requestAccounts" });
   web3 = new Web3((window as any).ethereum);
 } else {
   // We are on the server *OR* the user is not running metamask

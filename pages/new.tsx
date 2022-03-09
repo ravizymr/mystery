@@ -5,6 +5,7 @@ import { Form, Button, Card, Spinner } from "react-bootstrap";
 import web3 from "ethereum/web3";
 import { factory } from "ethereum/contract";
 import { useRouter } from "next/router";
+import { useStateContext } from "context/state";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -13,13 +14,13 @@ const Home: NextPage = () => {
   const [winProfit, setWinProfit] = useState("50");
   const [minAmountToAnswer, setMinAmountToAnswer] = useState("0.001");
   const [loading, setLoading] = useState(false);
+  const { account } = useStateContext();
 
   const createMystery = async (e: any) => {
     e.preventDefault();
     try {
-      const accounts = await web3.eth.getAccounts();
       let tx: any = {
-        from: accounts[0],
+        from: account,
         value: web3.utils.toWei(minAmountToAnswer, "ether"),
       };
       setLoading(true);

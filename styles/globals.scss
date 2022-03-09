@@ -1,3 +1,19 @@
+$body-bg: white;
+// $body-color: black;
+
+// $card-bg: rgba($body-bg, 0.3);
+// $card-border-color: rgba($body-color, 0.8);
+// $card-cap-bg: rgba($body-bg, 1);
+// $card-cap-color: $body-color;
+
+// $input-group-addon-bg: rgba($body-bg, 0.3);
+// $input-group-addon-border-color: rgba($body-color, 0.8);
+// $input-group-addon-color: $body-color;
+
+// $list-group-bg: rgba($body-bg, 0.3);
+// $list-group-color: $body-color;
+// $list-group-border-color: rgba($body-color, 0.8);
+
 @import "~bootstrap/scss/bootstrap";
 
 a {
@@ -11,6 +27,10 @@ a {
   display: flex;
   flex-direction: column;
   position: relative;
+  nav,
+  footer {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
   & > div.container {
     flex: 1 0 auto;
     & > div {

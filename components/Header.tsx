@@ -1,36 +1,24 @@
-import web3 from "ethereum/web3";
+import { useStateContext } from "context/state";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Container, Nav, Navbar } from "react-bootstrap";
+import { Button, Container, Nav, Navbar } from "react-bootstrap";
 import styles from "styles/header.module.scss";
 
-
 const Header = () => {
-  const [account, setAccount] = useState<string>();
-  const [network, setNetwork] = useState<string>();
-  useEffect(() => {
-    if (typeof window !== "undefined" && typeof (window as any).ethereum !== "undefined") {
-      (window as any).ethereum &&
-        (window as any).ethereum.on("accountsChanged", function (accounts) {
-          // Time to reload your interface with accounts[0]!
-          window.location.reload();
-        });
-      (window as any).ethereum.on("chainChanged", function (accounts) {
-        // Time to reload your interface with accounts[0]!
-        window.location.reload();
-      });
-      getAccount();
-    }
-  }, []);
+  const {
+    account,
+    web3Supported,
+  } = useStateContext();
 
-  const getAccount = async () => {
-    const network = await web3.eth.net.getNetworkType()
-    setNetwork(network)
-    const [account] = await web3.eth.getAccounts();
-    setAccount(account);
-  };
+  const connect = () => {
+    try {
+      (window as any).ethereum.request({ method: "eth_requestAccounts" });
+    } catch (e) {
+      console.log('failed to connect');
+    }
+  }
+
   return (
-    <Navbar bg="light" className={styles.header}>
+    <Navbar className={styles.header}>
       <Container fluid>
         <Link href="/">Mystery</Link>
         <Nav>
@@ -44,6 +32,7 @@ const Header = () => {
               </a>
             </Link>
           )}
+          {!account && web3Supported && <Button onClick={connect}>Connect</Button>}
         </Nav>
       </Container>
     </Navbar>
